@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Game Won!{% endblock %}
+
+{% block content %}
+<div class="game-container">
+    <div class="text-center mb-5">
+        <div class="emoji-large">🎉</div>
+        <h1 class="display-4 fw-bold text-success mb-3">Congratulations!</h1>
+        <h3 class="text-primary">You Won the Game!</h3>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card stats-card h-100">
+                <div class="card-body text-center">
+                    <h4 class="card-title mb-3">
+                        <i class="fas fa-chart-bar me-2"></i>Game Results
+                    </h4>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-primary bg-opacity-10 rounded border border-primary">
+                                <div class="h3 mb-1 text-primary fw-bold">{{ attempts }}</div>
+                                <small class="text-primary"><i class="fas fa-crosshairs me-1"></i>Attempts Used</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-info bg-opacity-10 rounded border border-info">
+                                <div class="h3 mb-1 text-info fw-bold">{{ "%.1f"|format(time) }}s</div>
+                                <small class="text-info"><i class="fas fa-clock me-1"></i>Time Taken</small>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="p-3 bg-warning bg-opacity-10 rounded border border-warning">
+                                <div class="h2 mb-1 text-warning fw-bold">{{ points }} <small>pts</small></div>
+                                <small class="text-warning"><i class="fas fa-trophy me-1"></i>Points Earned</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card card-custom h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-3">
+                        <i class="fas fa-list-ol text-primary me-2"></i>Your Guesses
+                    </h5>
+                    <div class="text-center">
+                        {% for guess in guesses %}
+                            <span class="badge bg-secondary me-1 mb-1" style="font-size: 0.9rem;">{{ guess }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if achievement %}
+    <div class="alert alert-warning alert-custom text-center mb-4">
+        <h4 class="alert-heading mb-2">
+            <i class="fas fa-trophy me-2"></i>New Achievement Unlocked!
+        </h4>
+        <p class="mb-0 h5">{{ achievement }}</p>
+    </div>
+    {% endif %}
+
+    <div class="text-center">
+        <div class="row g-3 justify-content-center">
+            <div class="col-md-4">
+                <a href="{{ url_for('menu') }}" class="btn btn-primary btn-game btn-lg w-100">
+                    <i class="fas fa-home me-2"></i>Back to Menu
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('stats') }}" class="btn btn-info btn-game btn-lg w-100">
+                    <i class="fas fa-chart-bar me-2"></i>View Stats
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('achievements') }}" class="btn btn-warning btn-game btn-lg w-100">
+                    <i class="fas fa-trophy me-2"></i>Achievements
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Confetti effect for winning
+document.addEventListener('DOMContentLoaded', function() {
+    // Simple confetti effect
+    const colors = ['#ff6b6b', '#feca57', '#48cae4', '#023e8a', '#9d4edd'];
+
+    function createConfetti() {
+        const confetti = document.createElement('div');
+        confetti.style.position = 'fixed';
+        confetti.style.width = '10px';
+        confetti.style.height = '10px';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.top = '-10px';
+        confetti.style.zIndex = '9999';
+        confetti.style.borderRadius = '50%';
+        confetti.style.pointerEvents = 'none';
+
+        document.body.appendChild(confetti);
+
+        const animation = confetti.animate([
+            { transform: 'translateY(0px) rotate(0deg)', opacity: 1 },
+            { transform: 'translateY(100vh) rotate(720deg)', opacity: 0 }
+        ], {
+            duration: 3000 + Math.random() * 2000,
+            easing: 'ease-out'
+        });
+
+        animation.onfinish = () => confetti.remove();
+    }
+
+    // Create confetti for 2 seconds
+    const interval = setInterval(createConfetti, 100);
+    setTimeout(() => clearInterval(interval), 2000);
+});
+</script>
+{% endblock %}

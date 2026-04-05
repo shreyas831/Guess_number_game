@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to Guess the Number{% endblock %}
+
+{% block content %}
+<div class="text-center">
+    <div class="game-container">
+        <div class="emoji-large">🎮</div>
+        <h1 class="display-4 fw-bold text-primary mb-4">Guess the Number Game</h1>
+        <p class="lead text-muted mb-5">
+            Challenge your mind with the ultimate number guessing experience!
+            Choose your difficulty, unlock achievements, and climb the leaderboards.
+        </p>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-6">
+                <div class="card card-custom h-100">
+                    <div class="card-body text-center">
+                        <div class="text-warning mb-3" style="font-size: 3rem;">📊</div>
+                        <h5 class="card-title">Normal Mode</h5>
+                        <p class="card-text">Classic high/low feedback to guide your guesses</p>
+                        <a href="{{ url_for('select_difficulty', mode='normal') }}" class="btn btn-primary btn-game">
+                            <i class="fas fa-play me-2"></i>Play Normal
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <a href="{{ url_for('stats') }}" class="btn btn-outline-primary btn-game w-100">
+                    <i class="fas fa-chart-bar me-2"></i>View Statistics
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('achievements') }}" class="btn btn-outline-warning btn-game w-100">
+                    <i class="fas fa-trophy me-2"></i>Achievements
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a href="{{ url_for('menu') }}" class="btn btn-outline-success btn-game w-100">
+                    <i class="fas fa-cog me-2"></i>Game Menu
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

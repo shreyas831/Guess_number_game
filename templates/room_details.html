@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Room: {{ room_name }}{% endblock %}
+
+{% block content %}
+<div class="game-container">
+    <div class="text-center mb-4">
+        <div class="emoji-large">
+            {% if room_data.game_finished %}
+                🏆
+            {% elif room_data.game_started %}
+                🎯
+            {% else %}
+                ⏳
+            {% endif %}
+        </div>
+        <h1 class="display-5 fw-bold text-primary mb-2">Room: {{ room_name }}</h1>
+        <div class="mb-3">
+            {% if room_data.game_finished %}
+                <span class="badge bg-success fs-6">Game Completed</span>
+            {% elif room_data.game_started %}
+                <span class="badge bg-warning fs-6">Game in Progress</span>
+            {% else %}
+                <span class="badge bg-info fs-6">Waiting for Players</span>
+            {% endif %}
+        </div>
+        <p class="text-muted">Created by {{ room_data.creator }} • {{ room_data.difficulty.range[0] }}-{{ room_data.difficulty.range[1] }} range</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Game Settings -->
+        <div class="col-md-4">
+            <div class="card card-custom h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cog me-2"></i>Game Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="h4 mb-1 text-primary">{{ room_data.difficulty.range[0] }}</div>
+                                <small class="text-muted">Min Number</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="h4 mb-1 text-primary">{{ room_data.difficulty.range[1] }}</div>
+                                <small class="text-muted">Max Number</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-warning bg-opacity-20 rounded">
+                                <div class="h4 mb-1 text-warning">{{ room_data.difficulty.attempts }}</div>
+                                <small class="text-muted">Max Attempts</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-info bg-opacity-20 rounded">
+                                <div class="h4 mb-1 text-info">{{ room_data.difficulty.hints }}</div>
+                                <small class="text-muted">Max Hints</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="col-md-4">
+            <div class="card card-custom h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Game Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Players:</strong> {{ room_data.players|length }}
+                        {% for player in room_data.players %}
+                            <div class="badge bg-secondary me-1">{{ player }}</div>
+                        {% endfor %}
+                    </div>
+
+                    {% if room_data.game_started %}
+                        <div class="mb-3">
+                            <strong>Started:</strong>
+                            <div class="text-muted">{{ room_data.start_time|strftime('%H:%M:%S') if room_data.start_time else 'N/A' }}</div>
+                        </div>
+                    {% endif %}
+
+                    {% if room_data.game_finished %}
+                        <div class="mb-3">
+                            <strong>Finished:</strong>
+                            <div class="text-muted">{{ room_data.end_time|strftime('%H:%M:%S') if room_data.end_time else 'N/A' }}</div>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Duration:</strong>
+                            <div class="text-success fw-bold">
+                                {{ "%.1f"|format((room_data.end_time - room_data.start_time) if room_data.start_time and room_data.end_time else 0) }}s
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {% if room_data.winner %}
+                        <div class="alert alert-success">
+                            <strong>Winner:</strong> {{ room_data.winner }}
+                            <br><small>{{ room_data.final_attempts }} attempts in {{ "%.1f"|format(room_data.final_time) }}s</small>
+                        </div>
+                    {% elif room_data.game_finished %}
+                        <div class="alert alert-warning">
+                            <strong>Game Over:</strong> No winner (max attempts reached)
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Guesses History -->
+        <div class="col-md-4">
+            <div class="card card-custom h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history me-2"></i>Guesses
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if room_data.guesses %}
+                        <div class="text-center mb-3">
+                            {% for guess in room_data.guesses %}
+                                <span class="badge bg-secondary me-1 mb-1 fs-6">{{ guess }}</span>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center">
+                            <small class="text-muted">{{ room_data.guesses|length }} guesses made</small>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-clock fa-2x mb-2"></i>
+                            <p>No guesses yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="text-center mt-4">
+        <div class="row g-3 justify-content-center">
+            {% if not room_data.game_finished and not room_data.game_started %}
+                <div class="col-md-3">
+                    <form method="POST" action="{{ url_for('join_room') }}" class="d-inline">
+                        <input type="hidden" name="room_name" value="{{ room_name }}">
+                        <button type="submit" class="btn btn-success btn-game btn-lg w-100">
+                            <i class="fas fa-play me-2"></i>Join Game
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+
+            {% if room_data.creator == session.get('username') %}
+                <div class="col-md-3">
+                    <form method="POST" action="{{ url_for('delete_room', room_name=room_name) }}"
+                          onsubmit="return confirm('Are you sure you want to delete this room?')" class="d-inline">
+                        <button type="submit" class="btn btn-danger btn-game btn-lg w-100">
+                            <i class="fas fa-trash me-2"></i>Delete Room
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+
+            <div class="col-md-3">
+                <a href="{{ url_for('multiplayer') }}" class="btn btn-primary btn-game btn-lg w-100">
+                    <i class="fas fa-list me-2"></i>Back to Rooms
+                </a>
+            </div>
+
+            <div class="col-md-3">
+                <a href="{{ url_for('menu') }}" class="btn btn-secondary btn-game btn-lg w-100">
+                    <i class="fas fa-home me-2"></i>Main Menu
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Updates Notice -->
+    {% if room_data.game_started and not room_data.game_finished %}
+    <div class="alert alert-info alert-custom text-center mt-4">
+        <h5 class="mb-2">
+            <i class="fas fa-sync-alt fa-spin me-2"></i>Live Game in Progress
+        </h5>
+        <p class="mb-0">This page updates automatically. Refresh to see the latest guesses!</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Auto-refresh for live games
+{% if room_data.game_started and not room_data.game_finished %}
+setInterval(function() {
+    if (!document.hidden) {
+        location.reload();
+    }
+}, 10000); // Refresh every 10 seconds for live games
+{% endif %}
+</script>
+{% endblock %}

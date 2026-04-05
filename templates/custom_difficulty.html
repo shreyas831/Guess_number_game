@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Custom Difficulty{% endblock %}
+
+{% block content %}
+<div class="game-container">
+    <div class="text-center mb-5">
+        <div class="emoji-large">⚙️</div>
+        <h2 class="fw-bold text-primary">Custom Difficulty</h2>
+        <p class="text-muted">Create your own challenge for {{ mode.title() }} Mode</p>
+    </div>
+
+    <form action="{{ url_for('start_game', mode=mode) }}" method="post">
+        <input type="hidden" name="difficulty" value="4">
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card card-custom">
+                    <div class="card-body text-center">
+                        <label for="max_num" class="form-label fw-bold">
+                            <i class="fas fa-hashtag text-primary me-2"></i>Maximum Number
+                        </label>
+                        <input type="number" class="form-control input-custom text-center" id="max_num" name="max_num"
+                               value="50" min="2" max="1000" required>
+                        <small class="text-muted">Range: 1 to your number</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-custom">
+                    <div class="card-body text-center">
+                        <label for="max_attempts" class="form-label fw-bold">
+                            <i class="fas fa-crosshairs text-danger me-2"></i>Number of Attempts
+                        </label>
+                        <input type="number" class="form-control input-custom text-center" id="max_attempts" name="max_attempts"
+                               value="5" min="1" max="20" required>
+                        <small class="text-muted">How many guesses you get</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card card-custom">
+                    <div class="card-body text-center">
+                        <label for="max_hints" class="form-label fw-bold">
+                            <i class="fas fa-lightbulb text-warning me-2"></i>Number of Hints
+                        </label>
+                        <input type="number" class="form-control input-custom text-center" id="max_hints" name="max_hints"
+                               value="2" min="0" max="10" required>
+                        <small class="text-muted">Helpful clues available</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <button type="submit" class="btn btn-success btn-game btn-lg">
+                <i class="fas fa-rocket me-2"></i>Start Custom Game
+            </button>
+            <a href="{{ url_for('select_difficulty', mode=mode) }}" class="btn btn-outline-secondary btn-game btn-lg ms-3">
+                <i class="fas fa-arrow-left me-2"></i>Back to Difficulty
+            </a>
+        </div>
+    </form>
+
+    <div class="alert alert-info alert-custom mt-4">
+        <h6><i class="fas fa-info-circle me-2"></i>Tips for Custom Games:</h6>
+        <ul class="mb-0">
+            <li><strong>Easy:</strong> Max number 20-30, 8-10 attempts, 3-4 hints</li>
+            <li><strong>Medium:</strong> Max number 40-60, 5-7 attempts, 2-3 hints</li>
+            <li><strong>Hard:</strong> Max number 80-100, 3-5 attempts, 0-1 hints</li>
+            <li><strong>Extreme:</strong> Max number 500+, 2-3 attempts, 0 hints</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Game Statistics{% endblock %}
+
+{% block content %}
+<div class="game-container">
+    <div class="text-center mb-5">
+        <div class="emoji-large">📊</div>
+        <h2 class="fw-bold text-primary">Your Statistics</h2>
+        <p class="text-muted">Track your progress and performance</p>
+    </div>
+
+    <!-- Overall Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card text-center h-100">
+                <div class="card-body">
+                    <div class="h1 mb-2">{{ games_played }}</div>
+                    <h6 class="card-title">Games Played</h6>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card stats-card text-center h-100">
+                <div class="card-body">
+                    <div class="h1 mb-2">{{ games_won }}</div>
+                    <h6 class="card-title">Games Won</h6>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card stats-card text-center h-100">
+                <div class="card-body">
+                    <div class="h1 mb-2">{{ win_rate }}%</div>
+                    <h6 class="card-title">Win Rate</h6>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card stats-card text-center h-100">
+                <div class="card-body">
+                    <div class="h1 mb-2">{{ total_score }}</div>
+                    <h6 class="card-title">Total Score</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Stats -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card card-custom">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-fire me-2"></i>Streaks & Performance</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="h4 mb-1 text-danger">{{ current_streak }}</div>
+                                <small class="text-muted">Current Streak</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="h4 mb-1 text-success">{{ best_streak }}</div>
+                                <small class="text-muted">Best Streak</small>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-center p-3 bg-light rounded">
+                                <div class="h4 mb-1 text-primary">{{ "%.1f"|format(avg_attempts) }}</div>
+                                <small class="text-muted">Avg Attempts per Win</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card card-custom">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Best Records</h5>
+                </div>
+                <div class="card-body">
+                    {% if best_game %}
+                    <div class="mb-3">
+                        <h6 class="text-success"><i class="fas fa-trophy me-1"></i>Best Game</h6>
+                        <p class="mb-1"><strong>{{ best_game.attempts }}</strong> attempts ({{ best_game.difficulty }})</p>
+                        <p class="mb-1"><strong>{{ best_game.points }} pts</strong></p>
+                        <small class="text-muted"><i class="fas fa-clock me-1"></i>{{ "%.1f"|format(best_game.time) }}s</small>
+                    </div>
+                    {% endif %}
+
+                    {% if worst_game %}
+                    <div>
+                        <h6 class="text-warning"><i class="fas fa-thumbs-down me-1"></i>Worst Game</h6>
+                        <p class="mb-1"><strong>{{ worst_game.attempts }}</strong> attempts ({{ worst_game.difficulty }})</p>
+                        <p class="mb-1"><strong>{{ worst_game.points }} pts</strong></p>
+                        <small class="text-muted"><i class="fas fa-clock me-1"></i>{{ "%.1f"|format(worst_game.time) }}s</small>
+                    </div>
+                    {% endif %}
+
+                    {% if not best_game and not worst_game %}
+                    <div class="text-center text-muted">
+                        <p>Play some games to see your records here!</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Last Number & Game Info -->
+    <div class="card card-custom mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-history me-2"></i>Last Game Info</h5>
+        </div>
+        <div class="card-body">
+            <div class="text-center">
+                {% if last_number is not none %}
+                    <div>
+                        <p class="text-muted mb-1">The last secret number was:</p>
+                        <div class="h2 text-info mb-0">{{ last_number }}</div>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Play a game to see the last secret number here!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Summary -->
+    <div class="card achievement-card">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-medal me-2"></i>Achievements Progress</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <div class="h3 mb-2">{{ achievements_count }}</div>
+                        <small>Achievements Unlocked</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <div class="h3 mb-2">
+                            {% if games_won >= 50 %}✅{% else %}🔒{% endif %}
+                        </div>
+                        <small>Champion (50 wins)</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <div class="h3 mb-2">
+                            {% if best_streak >= 5 %}✅{% else %}🔒{% endif %}
+                        </div>
+                        <small>Legendary (5 streak)</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <div class="h3 mb-2">
+                            {% if total_score >= 1000 %}✅{% else %}🔒{% endif %}
+                        </div>
+                        <small>Point Master (1000+)</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('achievements') }}" class="btn btn-warning btn-game">
+            <i class="fas fa-trophy me-2"></i>View All Achievements
+        </a>
+        <a href="{{ url_for('menu') }}" class="btn btn-primary btn-game ms-3">
+            <i class="fas fa-home me-2"></i>Back to Menu
+        </a>
+    </div>
+</div>
+{% endblock %}

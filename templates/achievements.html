@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Achievements{% endblock %}
+
+{% block content %}
+<div class="game-container">
+    <div class="text-center mb-5">
+        <div class="emoji-large">🏅</div>
+        <h2 class="fw-bold text-primary">Your Achievements</h2>
+        <p class="text-muted">Show off your accomplishments!</p>
+    </div>
+
+    {% if achievements %}
+    <div class="row g-3 mb-4">
+        {% for achievement in achievements %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card achievement-card h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3" style="font-size: 2rem;">🏆</div>
+                    <h6 class="card-title">{{ achievement }}</h6>
+                    <small class="text-white-50">Achievement Unlocked</small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center mb-5">
+        <div class="emoji-large">🎯</div>
+        <h4 class="text-muted mb-3">No Achievements Yet</h4>
+        <p class="text-muted">Start playing to unlock achievements!</p>
+    </div>
+    {% endif %}
+
+    <!-- Achievement Ideas -->
+    <div class="card card-custom">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Available Achievements</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <h6 class="text-primary">🎯 Perfect Shot</h6>
+                    <p class="small text-muted mb-3">Guess the number in 1 attempt on Hard mode</p>
+
+                    <h6 class="text-primary">🔥 Hot Streak</h6>
+                    <p class="small text-muted mb-3">Win 3 games in a row</p>
+
+                    <h6 class="text-primary">🌟 Legendary</h6>
+                    <p class="small text-muted mb-3">Win 5 games in a row</p>
+
+                    <h6 class="text-primary">💎 Point Master</h6>
+                    <p class="small text-muted mb-3">Earn 250+ points in a single game</p>
+                </div>
+
+                <div class="col-md-6">
+                    <h6 class="text-primary">🏆 Dedicated Player</h6>
+                    <p class="small text-muted mb-3">Win 10 games total</p>
+
+                    <h6 class="text-primary">👑 Champion</h6>
+                    <p class="small text-muted mb-3">Win 50 games total</p>
+
+                    <h6 class="text-primary">⚡ Speed Demon</h6>
+                    <p class="small text-muted mb-3">Win a game in under 10 seconds</p>
+
+                    <h6 class="text-primary">🎪 Hint Master</h6>
+                    <p class="small text-muted mb-3">Win a game without using any hints</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('menu') }}" class="btn btn-primary btn-game">
+            <i class="fas fa-home me-2"></i>Back to Menu
+        </a>
+        <a href="{{ url_for('stats') }}" class="btn btn-info btn-game ms-3">
+            <i class="fas fa-chart-bar me-2"></i>View Statistics
+        </a>
+    </div>
+</div>
+{% endblock %}

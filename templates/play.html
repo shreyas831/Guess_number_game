@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}Playing Game{% endblock %}
+
+{% block content %}
+<div class="game-container">
+    <div class="text-center mb-4">
+        <h3 class="fw-bold text-primary">
+            🎯 Playing {{ difficulty.name }} Mode ({{ mode.title() }})
+        </h3>
+        <p class="text-muted">Guess a number between {{ difficulty.range[0] }} and {{ difficulty.range[1] }}</p>
+    </div>
+
+    <!-- Progress and Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card card-custom">
+                <div class="card-body">
+                    <h6 class="card-title text-center mb-2">
+                        <i class="fas fa-tasks text-primary me-2"></i>Attempts Progress
+                    </h6>
+                    <div class="progress progress-bar-custom">
+                        <div class="progress-bar progress-bar-fill" role="progressbar"
+                             style="width: {{ (attempts / max_attempts * 100) }}%">
+                            {{ attempts }}/{{ max_attempts }}
+                        </div>
+                    </div>
+                    <small class="text-muted text-center d-block mt-1">
+                        {{ max_attempts - attempts }} attempts remaining
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card card-custom">
+                <div class="card-body">
+                    <h6 class="card-title text-center mb-2">
+                        <i class="fas fa-lightbulb text-warning me-2"></i>Hints Available
+                    </h6>
+                    <div class="text-center">
+                        {% for i in range(max_hints) %}
+                            {% if i < max_hints - hints_used %}
+                                <i class="fas fa-lightbulb text-warning me-1" style="font-size: 1.2rem;"></i>
+                            {% else %}
+                                <i class="far fa-lightbulb text-muted me-1" style="font-size: 1.2rem;"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <small class="text-muted text-center d-block mt-1">
+                        {{ max_hints - hints_used }} hints left
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Numbers Tried -->
+    <div class="card card-custom mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h6 class="mb-0"><i class="fas fa-history me-2"></i>Numbers You've Tried</h6>
+        </div>
+        <div class="card-body">
+            <div class="tried-numbers-section">
+                {% if guesses %}
+                    <div class="mb-2">
+                        {% for guess in guesses %}
+                            <span class="badge badge-guess">
+                                {{ guess }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                    <small class="text-muted d-block mt-2">
+                        📊 Total: <strong>{{ guesses|length }}</strong> attempts made
+                    </small>
+                {% else %}
+                    <p class="text-muted mb-0"><i class="fas fa-info-circle me-2"></i>No guesses yet. Make your first attempt!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="card card-custom mb-4">
+        <div class="card-body">
+            <form method="post" class="text-center">
+                <div class="mb-3">
+                    <label for="guess" class="form-label fw-bold">Enter your guess:</label>
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <input type="text" class="form-control input-custom text-center"
+                                   id="guess" name="guess" placeholder="Type a number or 'hint'"
+                                   autocomplete="off" autofocus required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-game">
+                    <i class="fas fa-paper-plane me-2"></i>Submit Guess
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Game Info -->
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card card-custom h-100">
+                <div class="card-body text-center">
+                    <h6 class="card-title">
+                        <i class="fas fa-info-circle text-info me-2"></i>How to Play
+                    </h6>
+                    <p class="card-text small mb-0">
+                        Enter a number and get high/low feedback to guide your next guess.
+                        Type 'hint' to use a hint (narrows down the range).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card card-custom h-100">
+                <div class="card-body text-center">
+                    <h6 class="card-title">
+                        <i class="fas fa-keyboard text-secondary me-2"></i>Quick Actions
+                    </h6>
+                    <div class="btn-group-vertical w-100" role="group">
+                        <button type="button" class="btn btn-outline-warning btn-sm"
+                                onclick="document.getElementById('guess').value='hint'; document.querySelector('form').submit();">
+                            <i class="fas fa-lightbulb me-2"></i>Use Hint
+                        </button>
+                        <a href="{{ url_for('reset_game') }}" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-undo me-2"></i>Restart Game
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Voice message function
+function playVoiceMessage() {
+    if ('speechSynthesis' in window) {
+        // Stop any currently speaking voice
+        if (speechSynthesis.speaking) {
+            speechSynthesis.cancel();
+        }
+
+        const message = "This is a mind game made by Shreyas Kulkarni";
+        const utterance = new SpeechSynthesisUtterance(message);
+
+        // Configure voice settings
+        utterance.rate = 0.6; // Slower speed for better clarity
+        utterance.pitch = 1; // Normal pitch
+        utterance.volume = 0.8; // Slightly quieter
+
+        // Disable the button while speaking
+        const voiceBtn = document.querySelector('.voice-btn');
+        if (voiceBtn) {
+            voiceBtn.disabled = true;
+            voiceBtn.innerHTML = '<i class="fas fa-volume-up me-1"></i>Speaking...';
+        }
+
+        // Re-enable button when speech ends
+        utterance.onend = function() {
+            if (voiceBtn) {
+                voiceBtn.disabled = false;
+                voiceBtn.innerHTML = '<i class="fas fa-volume-up me-1"></i>About This Game';
+            }
+        };
+
+        // Handle speech errors
+        utterance.onerror = function() {
+            if (voiceBtn) {
+                voiceBtn.disabled = false;
+                voiceBtn.innerHTML = '<i class="fas fa-volume-up me-1"></i>About This Game';
+            }
+        };
+
+        // Wait for voices to load, then select a good one
+        let voices = speechSynthesis.getVoices();
+        if (voices.length === 0) {
+            // Voices might not be loaded yet, wait for them
+            speechSynthesis.addEventListener('voiceschanged', function() {
+                voices = speechSynthesis.getVoices();
+                selectAndSpeak(utterance, voices);
+            });
+        } else {
+            selectAndSpeak(utterance, voices);
+        }
+
+        function selectAndSpeak(utterance, voices) {
+            // Try to find a good English voice
+            const preferredVoice = voices.find(voice =>
+                voice.lang.startsWith('en') && (
+                    voice.name.includes('Female') ||
+                    voice.name.includes('Zira') ||
+                    voice.name.includes('Google') ||
+                    voice.name.includes('Samantha') ||
+                    voice.name.includes('Alex')
+                )
+            ) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+
+            if (preferredVoice) {
+                utterance.voice = preferredVoice;
+            }
+
+            speechSynthesis.speak(utterance);
+        }
+    } else {
+        // Fallback for browsers without speech synthesis
+        console.log("Speech synthesis not supported in this browser");
+        // Could show a toast notification here
+        showToast("Voice feature not supported in this browser", "warning");
+    }
+}
+
+// Simple toast notification function
+function showToast(message, type = "info") {
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+    toast.innerHTML = `<i class="fas fa-info-circle me-2"></i>${message}`;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+// Auto-focus on input field and play voice message at game start
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('guess').focus();
+
+    // Play the voice message only when game first starts (no attempts made yet)
+    {% if attempts == 0 %}
+    setTimeout(playVoiceMessage, 500); // Small delay to ensure page is loaded
+    {% endif %}
+});
+
+// Allow Enter key to submit
+document.getElementById('guess').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        this.form.submit();
+    }
+});
+</script>
+{% endblock %}

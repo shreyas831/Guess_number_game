@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Multiplayer Mode{% endblock %}
+
+{% block content %}
+<div class="game-container">
+    <div class="text-center mb-5">
+        <div class="emoji-large">👥</div>
+        <h1 class="display-4 fw-bold text-warning mb-3">Multiplayer Arena</h1>
+        <p class="text-muted lead">Challenge friends in real-time number guessing battles!</p>
+    </div>
+
+    <!-- Active Rooms Section -->
+    {% if active_rooms %}
+    <div class="mb-5">
+        <h3 class="text-center mb-4">
+            <i class="fas fa-list text-primary me-2"></i>Active Rooms
+        </h3>
+        <div class="row g-3">
+            {% for room in active_rooms %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card room-card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">{{ room.name }}</h5>
+                            {% if room.status == 'in_progress' %}
+                                <span class="badge bg-warning status-badge live-indicator">🔴 LIVE</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {% if room.status == 'waiting' %}
+                                <span class="badge bg-success status-badge">⏳ Waiting</span>
+                            {% elif room.status == 'in_progress' %}
+                                <span class="badge bg-warning status-badge">🎯 In Progress</span>
+                            {% else %}
+                                <span class="badge bg-secondary status-badge">✅ Finished</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="small text-muted mb-3">
+                            <div><i class="fas fa-sliders-h me-1"></i>Range: {{ room.range[0] }}-{{ room.range[1] }}</div>
+                            <div><i class="fas fa-users me-1"></i>Players: {{ room.players }}</div>
+                            <div><i class="fas fa-clock me-1"></i>{{ room.created_at|strftime('%H:%M') }}</div>
+                        </div>
+                        {% if room.status == 'waiting' %}
+                        <div class="d-flex gap-2 justify-content-center">
+                            <form method="POST" action="{{ url_for('join_room') }}" class="d-inline">
+                                <input type="hidden" name="room_name" value="{{ room.name }}">
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="fas fa-sign-in-alt me-1"></i>Join Game
+                                </button>
+                            </form>
+                            <a href="{{ url_for('room_details', room_name=room.name) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye me-1"></i>View Details
+                            </a>
+                        </div>
+                        {% elif room.status == 'finished' %}
+                        <a href="{{ url_for('room_details', room_name=room.name) }}" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-trophy me-1"></i>View Results
+                        </a>
+                        {% else %}
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button class="btn btn-warning btn-sm" disabled>
+                                <i class="fas fa-clock me-1"></i>In Progress
+                            </button>
+                            <a href="{{ url_for('room_details', room_name=room.name) }}" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-eye me-1"></i>Watch Live
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Create/Join Section -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card card-custom shadow-lg">
+                <div class="card-body p-4">
+                    <div class="row">
+                        <!-- Create Room -->
+                        <div class="col-md-6 border-end border-warning">
+                            <div class="text-center mb-4">
+                                <div class="text-warning mb-3" style="font-size: 3rem;">🏗️</div>
+                                <h4 class="fw-bold">Create New Room</h4>
+                                <p class="text-muted">Set up a game and invite friends</p>
+                            </div>
+                            <form method="POST" action="{{ url_for('create_room') }}">
+                                <div class="mb-3">
+                                    <label for="room_name" class="form-label fw-bold">
+                                        <i class="fas fa-tag me-1"></i>Room Name
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="room_name" name="room_name"
+                                           required placeholder="e.g., EpicBattle2026" maxlength="20">
+                                    <div class="form-text">Choose a unique name for your room</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="secret_number" class="form-label fw-bold">
+                                        <i class="fas fa-lock me-1"></i>Secret Number
+                                    </label>
+                                    <input type="number" class="form-control form-control-lg" id="secret_number"
+                                           name="secret_number" required>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label for="min_num" class="form-label fw-bold">Min Number</label>
+                                        <input type="number" class="form-control" id="min_num" name="min_num"
+                                               value="1" required min="1">
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="max_num" class="form-label fw-bold">Max Number</label>
+                                        <input type="number" class="form-control" id="max_num" name="max_num"
+                                               value="100" required min="2">
+                                    </div>
+                                </div>
+
+                                <div class="row mt-3">
+                                    <div class="col-6">
+                                        <label for="max_attempts" class="form-label fw-bold">
+                                            <i class="fas fa-crosshairs me-1"></i>Max Attempts
+                                        </label>
+                                        <input type="number" class="form-control" id="max_attempts" name="max_attempts"
+                                               value="10" required min="1" max="50">
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="max_hints" class="form-label fw-bold">
+                                            <i class="fas fa-lightbulb me-1"></i>Max Hints
+                                        </label>
+                                        <input type="number" class="form-control" id="max_hints" name="max_hints"
+                                               value="3" required min="0" max="10">
+                                    </div>
+                                </div>
+
+                                <div class="text-center mt-4">
+                                    <button type="submit" class="btn btn-warning btn-game btn-lg px-5">
+                                        <i class="fas fa-plus-circle me-2"></i>Create Room
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Join Room -->
+                        <div class="col-md-6">
+                            <div class="text-center mb-4">
+                                <div class="text-success mb-3" style="font-size: 3rem;">🎯</div>
+                                <h4 class="fw-bold">Join Existing Room</h4>
+                                <p class="text-muted">Enter a room code to join the fun</p>
+                            </div>
+                            <form method="POST" action="{{ url_for('join_room') }}">
+                                <div class="mb-3">
+                                    <label for="join_room_name" class="form-label fw-bold">
+                                        <i class="fas fa-key me-1"></i>Room Name
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="join_room_name"
+                                           name="room_name" required placeholder="Enter room name" maxlength="20">
+                                    <div class="form-text">Ask your friend for the exact room name</div>
+                                </div>
+
+                                <div class="text-center mt-4">
+                                    <button type="submit" class="btn btn-success btn-game btn-lg px-5">
+                                        <i class="fas fa-rocket me-2"></i>Join Game
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Quick Stats -->
+                            <div class="mt-4 p-3 bg-light bg-opacity-50 rounded">
+                                <h6 class="text-center mb-2">
+                                    <i class="fas fa-chart-line me-1"></i>Quick Stats
+                                </h6>
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <div class="h5 mb-1">{{ active_rooms|length }}</div>
+                                        <small class="text-muted">Active Rooms</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="h5 mb-1">
+                                            {{ active_rooms|selectattr('status', 'equalto', 'in_progress')|list|length }}
+                                        </div>
+                                        <small class="text-muted">Games Playing</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="mt-5">
+        <h3 class="text-center mb-4">
+            <i class="fas fa-star text-warning me-2"></i>Why Play Multiplayer?
+        </h3>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="text-primary mb-3" style="font-size: 2.5rem;">⚡</div>
+                    <h5>Real-time Battles</h5>
+                    <p class="text-muted">Challenge friends instantly with custom rules</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="text-success mb-3" style="font-size: 2.5rem;">🎨</div>
+                    <h5>Custom Games</h5>
+                    <p class="text-muted">Set your own number ranges and difficulty levels</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="text-warning mb-3" style="font-size: 2.5rem;">🏆</div>
+                    <h5>Room Persistence</h5>
+                    <p class="text-muted">Rooms stay active for 1 hour for easy reconnection</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <a href="{{ url_for('menu') }}" class="btn btn-secondary btn-lg">
+            <i class="fas fa-arrow-left me-2"></i>Back to Menu
+        </a>
+    </div>
+</div>
+
+<script>
+// Auto-refresh active rooms every 30 seconds
+setInterval(function() {
+    if (!document.hidden) {
+        location.reload();
+    }
+}, 30000);
+
+// Form validation
+document.getElementById('room_name').addEventListener('input', function() {
+    this.value = this.value.replace(/[^a-zA-Z0-9_-]/g, '');
+});
+
+document.getElementById('join_room_name').addEventListener('input', function() {
+    this.value = this.value.replace(/[^a-zA-Z0-9_-]/g, '');
+});
+</script>
+{% endblock %}
