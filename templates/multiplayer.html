@@ -8,6 +8,9 @@
         <div class="emoji-large">👥</div>
         <h1 class="display-4 fw-bold text-warning mb-3">Multiplayer Arena</h1>
         <p class="text-muted lead">Challenge friends in real-time number guessing battles!</p>
+        <button type="button" class="btn btn-outline-primary voice-btn" data-label="Hear Multiplayer Instructions" onclick="playVoiceMessage('Welcome to the multiplayer arena. Made by shreyas kulkarni just Create a room or join one to compete with friends. Use the room name to connect and start guessing. Good luck!')">
+            <i class="fas fa-volume-up me-2"></i>Hear Multiplayer Instructions
+        </button>
     </div>
 
     <!-- Active Rooms Section -->
@@ -239,6 +242,11 @@ setInterval(function() {
         location.reload();
     }
 }, 30000);
+
+// Play multiplayer instruction when the page loads
+window.addEventListener('DOMContentLoaded', function() {
+    playVoiceMessage('Welcome to the multiplayer arena. Create a room or join one to compete with friends. Use the room name to connect and start guessing. Good luck!');
+});
 
 // Form validation
 document.getElementById('room_name').addEventListener('input', function() {

@@ -146,6 +146,15 @@
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             border-radius: 15px;
         }
+        @media (max-width: 991px) {
+            .navbar-nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .navbar-nav .nav-link {
+                padding: 0.5rem 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -183,5 +192,79 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    function playVoiceMessage(message) {
+        if ('speechSynthesis' in window) {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+
+            const utterance = new SpeechSynthesisUtterance(message);
+            utterance.rate = 0.6;
+            utterance.pitch = 1;
+            utterance.volume = 0.8;
+
+            const voiceBtn = document.querySelector('.voice-btn');
+            if (voiceBtn) {
+                voiceBtn.disabled = true;
+                voiceBtn.innerHTML = '<i class="fas fa-volume-up me-1"></i>Speaking...';
+            }
+
+            utterance.onend = function() {
+                if (voiceBtn) {
+                    voiceBtn.disabled = false;
+                    voiceBtn.innerHTML = '<i class="fas fa-volume-up me-1"></i>' + (voiceBtn.dataset.label || 'Listen to Instructions');
+                }
+            };
+
+            utterance.onerror = function() {
+                if (voiceBtn) {
+                    voiceBtn.disabled = false;
+                    voiceBtn.innerHTML = '<i class="fas fa-volume-up me-1"></i>' + (voiceBtn.dataset.label || 'Listen to Instructions');
+                }
+                showToast('Voice playback failed', 'warning');
+            };
+
+            let voices = speechSynthesis.getVoices();
+            if (voices.length === 0) {
+                speechSynthesis.addEventListener('voiceschanged', function() {
+                    voices = speechSynthesis.getVoices();
+                    selectAndSpeak(utterance, voices);
+                });
+            } else {
+                selectAndSpeak(utterance, voices);
+            }
+        } else {
+            showToast('Voice feature not supported in this browser', 'warning');
+        }
+    }
+
+    function selectAndSpeak(utterance, voices) {
+        const preferredVoice = voices.find(voice =>
+            voice.lang.startsWith('en') && (
+                voice.name.includes('Female') ||
+                voice.name.includes('Zira') ||
+                voice.name.includes('Google') ||
+                voice.name.includes('Samantha') ||
+                voice.name.includes('Alex')
+            )
+        ) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+
+        if (preferredVoice) {
+            utterance.voice = preferredVoice;
+        }
+
+        speechSynthesis.speak(utterance);
+    }
+
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} position-fixed`;
+        toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+        toast.innerHTML = `<i class="fas fa-info-circle me-2"></i>${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    </script>
 </body>
 </html>

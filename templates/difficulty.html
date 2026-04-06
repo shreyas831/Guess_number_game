@@ -10,12 +10,12 @@
         <p class="text-muted">Select your challenge level for {{ mode.title() }} Mode</p>
     </div>
 
-    <form action="{{ url_for('start_game', mode=mode) }}" method="post">
+    <form action="{{ url_for('start_game', mode=mode) }}" method="post" id="difficultyForm">
         <div class="row g-4">
             <div class="col-md-6 col-lg-3">
                 <div class="card card-custom h-100">
                     <div class="card-body text-center">
-                        <input type="radio" class="btn-check" name="difficulty" id="easy" value="1" checked>
+                        <input type="radio" class="btn-check" name="difficulty" id="easy" value="1" checked onchange="document.getElementById('difficultyForm').submit()">
                         <label class="btn btn-outline-success btn-game w-100 h-100 d-flex flex-column" for="easy">
                             <div class="mb-2" style="font-size: 2rem;">🟢</div>
                             <h5 class="card-title mb-2">Easy</h5>
@@ -28,7 +28,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card card-custom h-100">
                     <div class="card-body text-center">
-                        <input type="radio" class="btn-check" name="difficulty" id="medium" value="2">
+                        <input type="radio" class="btn-check" name="difficulty" id="medium" value="2" onchange="document.getElementById('difficultyForm').submit()">
                         <label class="btn btn-outline-warning btn-game w-100 h-100 d-flex flex-column" for="medium">
                             <div class="mb-2" style="font-size: 2rem;">🟡</div>
                             <h5 class="card-title mb-2">Medium</h5>
@@ -41,7 +41,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card card-custom h-100">
                     <div class="card-body text-center">
-                        <input type="radio" class="btn-check" name="difficulty" id="hard" value="3">
+                        <input type="radio" class="btn-check" name="difficulty" id="hard" value="3" onchange="document.getElementById('difficultyForm').submit()">
                         <label class="btn btn-outline-danger btn-game w-100 h-100 d-flex flex-column" for="hard">
                             <div class="mb-2" style="font-size: 2rem;">🔴</div>
                             <h5 class="card-title mb-2">Hard</h5>
@@ -54,7 +54,7 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card card-custom h-100">
                     <div class="card-body text-center">
-                        <input type="radio" class="btn-check" name="difficulty" id="custom" value="4">
+                        <input type="radio" class="btn-check" name="difficulty" id="custom" value="4" onchange="document.getElementById('difficultyForm').submit()">
                         <label class="btn btn-outline-primary btn-game w-100 h-100 d-flex flex-column" for="custom">
                             <div class="mb-2" style="font-size: 2rem;">⚙️</div>
                             <h5 class="card-title mb-2">Custom</h5>
@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <div class="text-center mt-5">
+        <div class="text-center mt-5 d-none d-md-block">
             <button type="submit" class="btn btn-primary btn-game btn-lg">
                 <i class="fas fa-play me-2"></i>Start Game
             </button>

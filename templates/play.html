@@ -9,6 +9,9 @@
             🎯 Playing {{ difficulty.name }} Mode ({{ mode.title() }})
         </h3>
         <p class="text-muted">Guess a number between {{ difficulty.range[0] }} and {{ difficulty.range[1] }}</p>
+        <button type="button" class="btn btn-outline-primary voice-btn mb-4" data-label="Listen to Instructions" onclick="playVoiceMessage(multiplayerVoiceMessage)">
+            <i class="fas fa-volume-up me-2"></i>Listen to Instructions
+        </button>
     </div>
 
     <!-- Progress and Stats -->
@@ -137,95 +140,7 @@
 </div>
 
 <script>
-// Voice message function
-function playVoiceMessage() {
-    if ('speechSynthesis' in window) {
-        // Stop any currently speaking voice
-        if (speechSynthesis.speaking) {
-            speechSynthesis.cancel();
-        }
-
-        const message = "This is a mind game made by Shreyas Kulkarni";
-        const utterance = new SpeechSynthesisUtterance(message);
-
-        // Configure voice settings
-        utterance.rate = 0.6; // Slower speed for better clarity
-        utterance.pitch = 1; // Normal pitch
-        utterance.volume = 0.8; // Slightly quieter
-
-        // Disable the button while speaking
-        const voiceBtn = document.querySelector('.voice-btn');
-        if (voiceBtn) {
-            voiceBtn.disabled = true;
-            voiceBtn.innerHTML = '<i class="fas fa-volume-up me-1"></i>Speaking...';
-        }
-
-        // Re-enable button when speech ends
-        utterance.onend = function() {
-            if (voiceBtn) {
-                voiceBtn.disabled = false;
-                voiceBtn.innerHTML = '<i class="fas fa-volume-up me-1"></i>About This Game';
-            }
-        };
-
-        // Handle speech errors
-        utterance.onerror = function() {
-            if (voiceBtn) {
-                voiceBtn.disabled = false;
-                voiceBtn.innerHTML = '<i class="fas fa-volume-up me-1"></i>About This Game';
-            }
-        };
-
-        // Wait for voices to load, then select a good one
-        let voices = speechSynthesis.getVoices();
-        if (voices.length === 0) {
-            // Voices might not be loaded yet, wait for them
-            speechSynthesis.addEventListener('voiceschanged', function() {
-                voices = speechSynthesis.getVoices();
-                selectAndSpeak(utterance, voices);
-            });
-        } else {
-            selectAndSpeak(utterance, voices);
-        }
-
-        function selectAndSpeak(utterance, voices) {
-            // Try to find a good English voice
-            const preferredVoice = voices.find(voice =>
-                voice.lang.startsWith('en') && (
-                    voice.name.includes('Female') ||
-                    voice.name.includes('Zira') ||
-                    voice.name.includes('Google') ||
-                    voice.name.includes('Samantha') ||
-                    voice.name.includes('Alex')
-                )
-            ) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
-
-            if (preferredVoice) {
-                utterance.voice = preferredVoice;
-            }
-
-            speechSynthesis.speak(utterance);
-        }
-    } else {
-        // Fallback for browsers without speech synthesis
-        console.log("Speech synthesis not supported in this browser");
-        // Could show a toast notification here
-        showToast("Voice feature not supported in this browser", "warning");
-    }
-}
-
-// Simple toast notification function
-function showToast(message, type = "info") {
-    const toast = document.createElement('div');
-    toast.className = `alert alert-${type} position-fixed`;
-    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
-    toast.innerHTML = `<i class="fas fa-info-circle me-2"></i>${message}`;
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-        toast.remove();
-    }, 3000);
-}
+const multiplayerVoiceMessage = "{{ 'Welcome to multiplayer mode. Made by shreyas kulkarni  Get ready to guess the number and beat your opponent. Good luck!' if mode == 'multiplayer' else 'This is a mind game made by Shreyas Kulkarni.' }}";
 
 // Auto-focus on input field and play voice message at game start
 document.addEventListener('DOMContentLoaded', function() {
@@ -233,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Play the voice message only when game first starts (no attempts made yet)
     {% if attempts == 0 %}
-    setTimeout(playVoiceMessage, 500); // Small delay to ensure page is loaded
+    setTimeout(function() { playVoiceMessage(multiplayerVoiceMessage); }, 500);
     {% endif %}
 });
 
