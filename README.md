@@ -1,4 +1,4 @@
-# r Number Guessing Game
+#  Number Guessing Game
 
 A lightweight Flask web application for a multiplayer number guessing game.
 
