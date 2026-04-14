@@ -1,4 +1,4 @@
-# Flask Multiplayer Number Guessing Game
+# r Number Guessing Game
 
 A lightweight Flask web application for a multiplayer number guessing game.
 
@@ -48,6 +48,9 @@ http://127.0.0.1:5000
 
 - The app uses a simple JSON file to store multiplayer rooms and high score data.
 - In production, use a proper secret key and a WSGI server such as Gunicorn or uWSGI.
+- 
+- <img width="667" height="575" alt="image" src="https://github.com/user-attachments/assets/4148fad4-9768-4308-b5e8-4b526dc7cea4" />
+
 
 ## License
 
